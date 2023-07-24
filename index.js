@@ -24,6 +24,7 @@ async function run() {
         const collegesCollection = client.db('collegeHunterDb').collection('colleges')
         const reviewsCollection = client.db('collegeHunterDb').collection('reviews')
         const usersCollection = client.db('collegeHunterDb').collection('users')
+        const myCollegesCollection = client.db('collegeHunterDb').collection('myColleges')
 
         app.get('/colleges', async (req, res) => {
             const result = await collegesCollection.find().toArray()
@@ -43,8 +44,44 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/users', async (req, res) => {
-            const result = await usersCollection.find().toArray()
+        app.post('/reviews', async (req, res) => {
+            const review = req.body
+            console.log(review)
+            const result = await reviewsCollection.insertOne(review)
+            res.send(result)
+        })
+
+        app.post('/users', async (req, res) => {
+            const user = req.body
+            const query= {email: user.email}
+            const existingUser= await usersCollection.findOne(query)
+
+            console.log('existing user', existingUser)
+            if(existingUser) return res.send({ message: 'User already exists' })
+
+            const result = await usersCollection.insertOne(user)
+            res.send(result)
+        })
+
+        app.post('/myColleges', async (req, res) => {
+            const college = req.body
+            console.log(college)
+            const result = await myCollegesCollection.insertOne(college)
+            res.send(result)
+        })
+
+        app.get('/myColleges', async (req, res) => {
+            const email = req.query.email
+            console.log(email)
+            const query = { email: email };
+            const result = await myCollegesCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        app.get('/users/:email', async (req, res) => {
+            console.log(req.params.email)
+            const query = { email: req.params.email }
+            const result = await usersCollection.findOne(query)
             res.send(result)
         })
 
