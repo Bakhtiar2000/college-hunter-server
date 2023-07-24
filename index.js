@@ -26,6 +26,7 @@ async function run() {
         const usersCollection = client.db('collegeHunterDb').collection('users')
         const myCollegesCollection = client.db('collegeHunterDb').collection('myColleges')
 
+        // Colleges API
         app.get('/colleges', async (req, res) => {
             const result = await collegesCollection.find().toArray()
             res.send(result)
@@ -39,6 +40,7 @@ async function run() {
             res.send(result)
         })
 
+        // Reviews API
         app.get('/reviews', async (req, res) => {
             const result = await reviewsCollection.find().toArray()
             res.send(result)
@@ -51,6 +53,7 @@ async function run() {
             res.send(result)
         })
 
+        // Users API
         app.post('/users', async (req, res) => {
             const user = req.body
             const query= {email: user.email}
@@ -63,6 +66,33 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/users', async (req, res) => {
+            const email = req.query.email
+            console.log(email)
+            const query = { email: email };
+            const result = await usersCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        app.patch('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const filter = { _id: new ObjectId(id) }
+            const updatedUser = req.body
+            console.log(updatedUser)
+            const updateDoc = {
+                $set: {
+                    email: updatedUser.email,
+                    name: updatedUser.name,
+                    address: updatedUser.address,
+                    university: updatedUser.university,
+                }
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+
+        // My Colleges API
         app.post('/myColleges', async (req, res) => {
             const college = req.body
             console.log(college)
@@ -75,28 +105,6 @@ async function run() {
             console.log(email)
             const query = { email: email };
             const result = await myCollegesCollection.find(query).toArray()
-            res.send(result)
-        })
-
-        app.get('/users/:email', async (req, res) => {
-            console.log(req.params.email)
-            const query = { email: req.params.email }
-            const result = await usersCollection.findOne(query)
-            res.send(result)
-        })
-
-        app.patch('/users/:id', async (req, res) => {
-            const id = req.params.id;
-            console.log(id)
-            const filter = { _id: new ObjectId(id) }
-            const updatedUser = req.body
-            console.log(updatedUser.newRole)
-            const updateDoc = {
-                $set: {
-                    role: updatedUser.newRole
-                }
-            };
-            const result = await usersCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
 
